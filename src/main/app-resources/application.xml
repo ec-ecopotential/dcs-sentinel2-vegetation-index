@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="application">
+  <jobTemplates>
+    <jobTemplate id="sen2cor" jobType="wps_client">
+        <defaultParameters>
+        <parameter id="startdate" title="Time of Interest start date/time" abstract="Time of Interest start date/time in ISO 8601 (e.g. 2016-04-21T06:50:41Z)" scope="runtime" type="opensearch" target="time:start" maxOccurs="1">2016-02-06T10:24:29.000Z</parameter>
+        <parameter id="enddate" title="Time of Interest end date/time" abstract="Time of Interest end date/time in ISO 8601 (e.g. 2016-04-21T06:50:41Z)" scope="runtime" type="opensearch" target="time:end" maxOccurs="1">2016-02-25T23:59:59.000Z</parameter>
+        <parameter id="bbox" title="Area of Interest expressed as a bounding box" abstract="Area of Interest expressed as min longitude,min latitude,max longitude,max latitude (e.g. 14.75,37.41,15.21,37.74)" scope="runtime" type="opensearch" target="geo:box" maxOccurs="1">14.75,37.41,15.21,37.74</parameter>
+      <parameter id="resolution" title="Resolution for Sentinel-2 Level-2A product in meters (10, 20 or 60)" abstract="Resolution for Sentinel-2 Level-2A product in meters (10, 20 or 60). The bands are resampled to the selected target resolution" scope="runtime" maxOccurs="1"> <options>
+        <option>10</option>
+        <option>20</option>
+        <option>60</option>
+        <default>60</default>
+    </options>
+</parameter>
+        </defaultParameters>
+        <defaultJobconf>
+          <property id="ogc.wps.access.point">http://10.16.10.35:8080/wps/WebProcessingService</property>
+          <property id="ogc.wps.process.identifier">com.terradue.wps_oozie.process.OozieAbstractAlgorithm</property>
+          <property id="ogc.wps.storeExecuteResponse">true</property>
+          <property id="ogc.wps.status">true</property>
+          <property id="mapred.task.timeout">9900000000</property>
+          <property id="ciop.job.max.tasks">1</property>
+        </defaultJobconf>
+    </jobTemplate>
+   <jobTemplate id="split">
+      <streamingExecutable>/application/split/run</streamingExecutable>
+      <defaultParameters/>
+      <defaultJobconf>
+        <property id="mapred.task.timeout">9900000000</property>
+      </defaultJobconf>
+    </jobTemplate> 
+   <jobTemplate id="sen2vi">
+      <streamingExecutable>/application/sen2vi/run</streamingExecutable>
+      <defaultParameters>
+        <parameter id="vegetation_index" title="List of vegetation indexes to generate" abstract="List of vegetation indexes to generate" scope="runtime">NDVI</parameter>
+      </defaultParameters>
+      <defaultJobconf>
+        <property id="mapred.task.timeout">9900000000</property>
+      </defaultJobconf>
+    </jobTemplate>  
+  </jobTemplates>
+    <workflow id="workflow" title="Basic Workflow" abstract="Basic workflow archetype">
+    <workflowVersion>1.0</workflowVersion>
+    <node id="sen2cor">
+      <job id="sen2cor"/>
+      <sources>
+        <source id="series" title="a" abstract="b" refid="cas:series">https://data2.terradue.com/eop/eo-samples/series/sentinel-2/description</source>
+      </sources>
+    </node>
+    <node id="split">
+      <job id="split"/>
+      <sources>
+        <source refid="wf:node">sen2cor</source>
+      </sources>
+    </node>
+    <node id="sen2vi">
+      <job id="sen2vi"/>
+      <sources>
+        <source refid="wf:node">split</source>
+      </sources>
+    </node>
+  </workflow>
+</application>

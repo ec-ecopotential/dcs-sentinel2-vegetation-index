@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ciop-browseresults -j sen2cor | ciop-publish -s - 
