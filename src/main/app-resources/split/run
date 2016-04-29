@@ -1,3 +1,12 @@
 #!/bin/bash
 
-ciop-browseresults -j sen2cor | ciop-publish -s - 
+# source the ciop functions (e.g. ciop-log, ciop-getparam)
+source ${ciop_job_include}
+
+ciop-log "INFO" "hello!"
+
+while read input
+do 
+  ciop-log "INFO" "hello! ${input}"
+  ciop-browseresults -R ${input} |  tr -d '\r' | ciop-publish -s  
+done

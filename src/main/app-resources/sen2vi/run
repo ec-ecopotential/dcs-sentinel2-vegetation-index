@@ -128,9 +128,9 @@ function calcVegetation() {
   esac
 
   otbcli_BandMath \
-    -il ${s2l2a} \
+    -il ${s2l2a}.tif \
     -exp ${expression} \
-    -out ${index}.TIF
+    -out ${s2l2a}_${index}.TIF
 
   gdalwarp \
     -r cubic \
@@ -144,10 +144,10 @@ function calcVegetation() {
     -t_srs EPSG:4326 \
     -co TILED=YES\
     -co COMPRESS=LZW\
-    ${index}.TIF \
-    ${index}_4326.TIF
+    ${s2l2a}_${index}.TIF \
+    ${s2l2a}_${index}_4326.TIF
 
-  rm -f ${index}.TIF
+  rm -f ${s2l2a}_${index}.TIF
 }
 
 function main() {
@@ -164,38 +164,40 @@ function main() {
     local_resource="$( echo ${input} | ciop-copy -z -O ${TMPDIR} - )"
 
     ciop-log "INFO" "Convert Sentinel-2 Level 2A product to geotiff"
-    
-    
-    mkdir ${identifier}
-    tar xfz ${local_resource} -C ${identifier} || return ${ERR_EXTRACT}
+   
+    identifier=$( tar tfz ${local_resource} | head -n 1 | sed 's/SAFE/xml/')
+
+    identifier=$( basename ${identifier} | sed 's/.SAFE//' )
+ 
+    tar xfz ${local_resource} || return ${ERR_EXTRACT}
 
     ciop-log "INFO" "Process vegetation indexes for ${identifier}"
 
-    # SWIR1
-    DNtoReflectance 6 ${identifier} || return ${ERR_DNTOREF}
+    cd ${identifier}.SAFE
 
-    # NIR
-    DNtoReflectance 5 ${identifier} || return ${ERR_DNTOREF}
+    metadata="$(  find . -maxdepth 1 -name "S2A*.xml" )"
+    # convert to geotif with gdal >2.1
+ 
+    counter=1
 
-    # SWIR2
-    DNtoReflectance 7 ${identifier} || return ${ERR_DNTOREF}
-
-    # Red
-    DNtoReflectance 4 ${identifier} || return ${ERR_DNTOREF}
-
-    # Green
-    DNtoReflectance 3 ${identifier} || return ${ERR_DNTOREF}
-
-    for index in LSWI NBR NDVI MNDWI
+    gdalinfo ${metadata} 2> /dev/null | grep -E  "SUBDATASET_._NAME" | grep -v "PREVIEW" | cut -d "=" -f 2 | while read subset
     do 
+      gdal_translate ${subset} ${identifier}_${counter}.TIF
 
-      calcVegetation ${index} ${identifier} || return ${ERR_CALC_VI}
+      for index in LSWI NBR NDVI MNDWI
+      do 
+     
+        calcVegetation ${index} ${identifier}_${counter} || return ${ERR_CALC_VI}
 
-      ciop-log "INFO" "Publish vegeatation index ${index}"
-      ciop-publish -m ${TMPDIR}/${identifier}/${identifier}_${index}_4326.TIF
-    
+        ciop-log "INFO" "Publish vegeatation index ${index}"
+        ciop-publish -m ${TMPDIR}/${identifier}.SAFE/${identifier}_${counter}_${index}_4326.TIF
+        
+        rm -f ${TMPDIR}/${identifier}.SAFE/${identifier}_${counter}_${index}_4326.TIF
+      done
+  
+      rm -f ${identifier}_${counter}.TIF
+      counter=$((counter+1))
     done
-
   done
 
 }
