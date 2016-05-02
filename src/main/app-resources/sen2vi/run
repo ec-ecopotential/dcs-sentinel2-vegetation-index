@@ -194,6 +194,29 @@ function calcVegetation() {
 
 }
 
+function updateMetadata() {
+
+  local vrt=$1
+
+   xmlstarlet ed -L -a "/VRTDataset/VRTRasterBand[@band="1"]/NoDataValue" \
+     -t elem -n "Description" -v "Normalised Difference Vegetation Index (NDVI) expression: (NIR - R)/(NIR + R) i.e. (B7 - B4)/(B7 + B4)" \
+     ${TMPDIR}/sen2vi.vrt
+
+   xmlstarlet ed -L -a "/VRTDataset/VRTRasterBand[@band="2"]/NoDataValue" \
+     -t elem -n "Description" -v "Normalised Difference Vegetation Index with bands 4 and 5 (NDI45) expression: (NIR - R)/(NIR + R) i.e. (B5 - B4)/(B5 + B4) " \
+     ${TMPDIR}/sen2vi.vrt
+
+   xmlstarlet ed -L -a "/VRTDataset/VRTRasterBand[@band="3"]/NoDataValue" \
+     -t elem -n "Description" -v "MERIS Terrestrial Chlorophyll Index (MTCI) expression: (NIR - RE)/(RE - R) i.e. (B6 - B5)/(B5 - B4) " \
+     ${TMPDIR}/sen2vi.vrt
+
+   xmlstarlet ed -L -a "/VRTDataset/VRTRasterBand[@band="3"]/NoDataValue" \
+     -t elem -n "Description" -v "Modified Chlorophyll Absorption in Reflectance Index (MCARI) expression: [(RE - R) - 0.2 x (RE - G)] x (RE - R) i.e. [(B5 - B4) -  0.2 x (B5 - B3)] x (B5 - B4)" \
+     ${TMPDIR}/sen2vi.vrt
+
+}
+
+
 function main() {
 
   # set OTB environment
@@ -257,9 +280,10 @@ function main() {
         ${TMPDIR}/${identifier}.SAFE/${identifier}_${counter}_SNW.TIF \
         ${TMPDIR}/${identifier}.SAFE/${identifier}_${counter}_WVP.TIF || return ${ERR_GDAL_VRT}
 
-      xmlstarlet ed -L -a "/VRTDataset/VRTRasterBand[@band="1"]/NoDataValue" \
-        -t elem -n "Description" -v "NDVI" \
+     xmlstarlet ed -L -a "/VRTDataset/VRTRasterBand[@band="1"]/NoDataValue" \
+       -t elem -n "Description" -v "NDVI" \
        ${TMPDIR}/sen2vi.vrt
+    
 
      gdalwarp \
       -r cubic \
