@@ -152,7 +152,7 @@ function calcVegetation() {
   otbcli_BandMath \
     -il ${s2l2a}.TIF \
     -exp ${expression} \
-    -out ${s2l2a}_${index}.TIF
+    -out ${s2l2a}_${index}.TIF || return ${ERR_OTB_BANDMATH}
 
 }
 
@@ -162,54 +162,60 @@ function updateMetadata() {
 
    xmlstarlet ed -L -a "/VRTDataset/VRTRasterBand[@band="1"]/NoDataValue" \
      -t elem -n "Description" -v "Normalised Difference Vegetation Index (NDVI) expression: (NIR - R)/(NIR + R) i.e. (B7 - B4)/(B7 + B4)" \
-     ${TMPDIR}/sen2vi.vrt
+     ${vrt} 
 
    xmlstarlet ed -L -a "/VRTDataset/VRTRasterBand[@band="2"]/NoDataValue" \
      -t elem -n "Description" -v "Normalised Difference Vegetation Index with bands 4 and 5 (NDI45) expression: (NIR - R)/(NIR + R) i.e. (B5 - B4)/(B5 + B4) " \
-     ${TMPDIR}/sen2vi.vrt
+     ${vrt}
 
    xmlstarlet ed -L -a "/VRTDataset/VRTRasterBand[@band="3"]/NoDataValue" \
      -t elem -n "Description" -v "MERIS Terrestrial Chlorophyll Index (MTCI) expression: (NIR - RE)/(RE - R) i.e. (B6 - B5)/(B5 - B4) " \
-     ${TMPDIR}/sen2vi.vrt
+     ${vrt}   
 
    xmlstarlet ed -L -a "/VRTDataset/VRTRasterBand[@band="4"]/NoDataValue" \
      -t elem -n "Description" -v "Modified Chlorophyll Absorption in Reflectance Index (MCARI) expression: [(RE - R) - 0.2 x (RE - G)] x (RE - R) i.e. [(B5 - B4) -  0.2 x (B5 - B3)] x (B5 - B4)" \
-     ${TMPDIR}/sen2vi.vrt
+     ${vrt}     
 
   xmlstarlet ed -L -a "/VRTDataset/VRTRasterBand[@band="5"]/NoDataValue" \
      -t elem -n "Description" -v "Green Normalised Difference Vegetation Index (GNDVI) expression: (NIR - G)/(NIR + G) i.e. (B7 - B3)/(B7 + B3)" \
-     ${TMPDIR}/sen2vi.vrt
+     ${vrt}
  
  xmlstarlet ed -L -a "/VRTDataset/VRTRasterBand[@band="6"]/NoDataValue" \
      -t elem -n "Description" -v "Pigment Specific Simple Ratio (PSSRa) expression: NIR/R i.e. B7/B4" \
-     ${TMPDIR}/sen2vi.vrt
+     ${vrt}     
   
   xmlstarlet ed -L -a "/VRTDataset/VRTRasterBand[@band="7"]/NoDataValue" \
      -t elem -n "Description" -v "Sentinel-2 red-edge position (S2REP) expression: 705 + 35 x ((((NIR + R)/2) - RE1)/(RE2 - RE1)) i.e. 705 + 35 x ((((B7 + B4)/2) - B5)/(B6 - B5))" \
-     ${TMPDIR}/sen2vi.vrt
+     ${vrt}     
   
   xmlstarlet ed -L -a "/VRTDataset/VRTRasterBand[@band="8"]/NoDataValue" \
      -t elem -n "Description" -v "Inverted Red-Edge Chlorophyll Index (IRECI) expression: (NIR - R)/(RE1/RE2) i.e. (B7 - B4)/(B5/B6)" \
-     ${TMPDIR}/sen2vi.vrt
-     
+     ${vrt}
+    
   xmlstarlet ed -L -a "/VRTDataset/VRTRasterBand[@band="9"]/NoDataValue" \
      -t elem -n "Description" -v "Raster mask values range from 0 for high confidence clear sky to 100 for high confidence cloudy" \
-     ${TMPDIR}/sen2vi.vrt   
+     ${vrt}
      
   xmlstarlet ed -L -a "/VRTDataset/VRTRasterBand[@band="10"]/NoDataValue" \
      -t elem -n "Description" -v "Scene Classification" \
-     ${TMPDIR}/sen2vi.vrt  
+     ${vrt}     
      
   xmlstarlet ed -L -a "/VRTDataset/VRTRasterBand[@band="11"]/NoDataValue" \
-     -t elem -n "Description" -v "Raster mask values range from 0 for high confidence NO snow/ice to 100 for high confidence snow/ice" \
-     ${TMPDIR}/sen2vi.vrt  
+    -t elem -n "Description" -v "Raster mask values range from 0 for high confidence NO snow/ice to 100 for high confidence snow/ice" \
+    ${vrt}  
      
   xmlstarlet ed -L -a "/VRTDataset/VRTRasterBand[@band="12"]/NoDataValue" \
-     -t elem -n "Description" -v "Scene-average Water Vapour map" \
-     ${TMPDIR}/sen2vi.vrt
-     
-}
+    -t elem -n "Description" -v "Scene-average Water Vapour map" \
+    ${vrt}    
 
+  xmlstarlet ed -L -a "/VRTDataset/VRTRasterBand" --type elem -n "Metadata" -v "" ${vrt}
+
+  xmlstarlet ed -L -a "/VRTDataset/VRTRasterBand/NoDataValue" --type elem -n "ColorInterp" -v "Gray" ${vrt}
+  xmlstarlet ed -L -a "/VRTDataset/VRTRasterBand/NoDataValue" --type elem -n "Offset" -v "0.0" ${vrt}
+  xmlstarlet ed -L -a "/VRTDataset/VRTRasterBand/NoDataValue" --type elem -n "Scale" -v "1.0" ${vrt}
+
+
+}
 
 function main() {
 
@@ -226,9 +232,13 @@ function main() {
 
     local_resource="$( echo ${input} | ciop-copy -z -O ${TMPDIR} - )"
 
+    [ -z "${local_resource}" ] && return ${ERR_NO_LOCAL}
+
     ciop-log "INFO" "Convert Sentinel-2 Level 2A product to geotiff"
    
     identifier=$( tar tfz ${local_resource} | head -n 1 | sed 's/.SAFE\///')
+
+    [ -z "${identifier}" ] && return ${ERR_NO_IDENTIFIER}
 
     tar xfz ${local_resource} || return ${ERR_EXTRACT}
 
@@ -238,12 +248,14 @@ function main() {
 
     metadata="$(  find . -maxdepth 1 -name "S2A*.xml" )"
  
+    [ -z "${metadata}" ] && return ${ERR_NO_METADATA}
+
     counter=0
 
     gdalinfo ${metadata} 2> /dev/null | grep -E  "SUBDATASET_._NAME" | grep -v "PREVIEW" | cut -d "=" -f 2 | while read subset
     do 
       ciop-log "INFO" "Process ${subset}"
-      gdal_translate ${subset} ${identifier}_${counter}.TIF
+      gdal_translate ${subset} ${identifier}_${counter}.TIF || return ${ERR_GDAL_TRANSLATE}
 
       for index in NDVI NDI45 MTCI MCARI GNDVI PSSRa S2REP IRECI CLD SCL SNW WVP
       do 
@@ -274,10 +286,7 @@ function main() {
         ${TMPDIR}/${identifier}.SAFE/${identifier}_${counter}_SNW.TIF \
         ${TMPDIR}/${identifier}.SAFE/${identifier}_${counter}_WVP.TIF || return ${ERR_GDAL_VRT}
 
-     xmlstarlet ed -L -a "/VRTDataset/VRTRasterBand[@band="1"]/NoDataValue" \
-       -t elem -n "Description" -v "NDVI" \
-       ${TMPDIR}/sen2vi.vrt
-    
+     updateMetadata ${TMPDIR}/sen2vi.vrt 
 
      gdalwarp \
       -r cubic \
@@ -291,8 +300,7 @@ function main() {
       -co COMPRESS=LZW \
       -t_srs EPSG:4326 \
       ${TMPDIR}/sen2vi.vrt \
-      ${TMPDIR}/${identifier}_${counter}.TIF
-      ciop-publish -m ${TMPDIR}/sen2vi.vrt
+      ${TMPDIR}/${identifier}_${counter}.TIF || return ${ERR_GDAL_WARP}
       
       rm -f ${TMPDIR}/sen2vi.vrt
   
