@@ -55,44 +55,6 @@ function setGDALEnv() {
 
 }
 
-function getGain() {
-
-  local band=$1
-  local product_id=$2
-
-  gain=$( cat ${product_id}/*_MTL.txt | grep REFLECTANCE_MULT_BAND_${band} | cut -d "=" -f 2 | tr -d " " )
-
-  echo ${gain}
-
-}
-
-function getOffset() {
-
-  local band=$1
-  local product_id=$2
- 
-  offset=$( cat ${product_id}/*_MTL.txt | grep REFLECTANCE_ADD_BAND_${band} | cut -d "=" -f 2 | tr -d " " )
-
-  echo ${offset}
-
-}
-
-function DNtoReflectance() {
-
-  local band=$1
-  local base_name=$2
-
-  gain=$( getGain ${band} ${base_name} )
-  offset=$( getOffset ${band} ${base_name} )
-
-  otbcli_BandMath \
-    -il ${base_name}/${base_name}_B${band}.TIF \
-    -exp "${gain} * im1b1 + ${offset}" \
-    -out ${base_name}/REFLECTANCE_B${band}.TIF
-
-  return $?
-}
-
 function calcVegetation() {
   local index=$1
   local s2l2a=$2
