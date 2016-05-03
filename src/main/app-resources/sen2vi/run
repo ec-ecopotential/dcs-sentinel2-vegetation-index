@@ -3,17 +3,17 @@
 # source the ciop functions (e.g. ciop-log, ciop-getparam)
 source ${ciop_job_include}
 
-set -x 
-
 # define the exit codes
 SUCCESS=0
-ERR_NO_RESOLUTION=5
-ERR_DOWNLOAD_1C=10
-ERR_GRANULE_DIR=15
-ERR_SEN2COR=20
-ERR_LEVEL_2A_DIR=25
-ERR_COMPRESSION=30
-ERR_PUBLISH=35
+ERR_UNKNOWN_VI=5
+ERR_OTB_BANDMATH=10
+ERR_NO_LOCAL=15
+ERR_NO_IDENTIFIER=20
+ERR_EXTRACT=25
+ERR_NO_METADATA=30
+ERR_GDAL_TRANSLATE=35
+ERR_GDAL_VRT=40
+ERR_GDAL_WARP=45
 
 # add a trap to exit gracefully
 function cleanExit ()
@@ -22,13 +22,16 @@ function cleanExit ()
   local msg=""
   case "${retval}" in
     ${SUCCESS}) msg="Processing successfully concluded";;
-    ${ERR_NO_RESOLUTION}) msg="No target resolution provided, must be one of 10, 20 or 60";;
-    ${ERR_DOWNLOAD_1C}) msg="Failed to retrieve Sentinel-2 Level 1C product";;
-    ${ERR_GRANULE_DIR}) msg="Couldn't find the Sentinel-2 Level 1C product granule directory";;
-    ${ERR_SEN2COR}) msg="SEN2COR main binary L2A_Process failed";;
-    ${ERR_LEVEL_2A_DIR}) msg="Couldn't find the Sentinel-2 Level 2A product";;
-    ${ERR_COMPRESSION}) msg="Failed to compress the Sentinel-2 Level 2A product";;
-    ${ERR_PUBLISH}) msg="Failed to publish the Sentinel-2 Level 2A product";;
+    ${ERR_UNKNOWN_VI}) msg="Unknown band, no expression defined";;
+    ${ERR_OTB_BANDMATH}) msg="OTB failed to process expression";;
+    ${ERR_NO_LOCAL}) msg="Couldn't retrieve the Sentinel-2 Level 2A product";;
+    ${ERR_NO_IDENTIFIER}) msg="Couldn't identify the Sentinel-2 Level 2A identifier";;
+    ${ERR_EXTRACT}) msg="Couldn't extract the Sentinel-2 Level 2A product";;
+    ${ERR_NO_METADATA}) msg="Couldn't find the Sentinel-2 Level 2A metadata entry point";;
+    ${ERR_GDAL_TRANSLATE}) msg="GDAL failed to convert Sentinel-2 Level 2A product in geotiff";;
+    ${ERR_GDAL_VRT}) msg="GDAL failed to create the VRT";;
+    ${ERR_GDAL_WARP}) msg="GDAL failed to warp the VRT";;
+    ${ERR_PUBLISH}) msg="Failed to publish the result";;
     *) msg="Unknown error";;
   esac
 
@@ -260,7 +263,7 @@ function main() {
       for index in NDVI NDI45 MTCI MCARI GNDVI PSSRa S2REP IRECI CLD SCL SNW WVP
       do 
      
-        calcVegetation ${index} ${identifier}_${counter} || return ${ERR_CALC_VI}
+        calcVegetation ${index} ${identifier}_${counter} || return $?
 
       done
    
@@ -305,7 +308,7 @@ function main() {
       rm -f ${TMPDIR}/sen2vi.vrt
   
       ciop-log "INFO" "Publish Level 2 product ${identifier}_${counter}.TIF"
-      ciop-publish -m ${TMPDIR}/${identifier}_${counter}.TIF
+      ciop-publish -m ${TMPDIR}/${identifier}_${counter}.TIF || return ${ERR_PUBLISH}
    
       rm -fr ${TMPDIR}/${identifier}.SAFE/${identifier}_${counter}* 
 
