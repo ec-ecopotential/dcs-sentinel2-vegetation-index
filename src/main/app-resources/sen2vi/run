@@ -96,36 +96,36 @@ function calcVegetation() {
   case $index in
     NDVI)  
       # NDVI
-      expression=" im1b7 > 0 && im1b7 <= 10000 && im1b4 > 0 && im1b4 <= 10000 ? ( im1b7 - im1b4 ) / ( im1b7 + im1b4 ) : -999 "
+      expression=" im1b7 > 0 && im1b7 <= 20000 && im1b4 > 0 && im1b4 <= 20000 ? 1000*(( im1b7 - im1b4 ) / ( im1b7 + im1b4 )) : -9999 "
       ;; 
 
     NDI45) 
       # NDI45
-      expression=" im1b5 > 0 && im1b5 <= 10000 && im1b4 > 0 && im1b4 <= 10000 ? ( im1b5 - im1b4 ) / ( im1b5 + im1b4 ) : -999 " 
+      expression=" im1b5 > 0 && im1b5 <= 10000 && im1b4 > 0 && im1b4 <= 10000 ? 1000*(( im1b5 - im1b4 ) / ( im1b5 + im1b4 )) : -9999 " 
       ;;  
     MTCI)
       # MTCI
-      expression=" im1b5 > 0 && im1b5 <= 10000 && im1b4 > 0 && im1b4 <= 10000 && im1b6 > 0 && im1b6 && im1b5 - im1b4 != 0 ? ( im1b6 - im1b5 ) / ( im1b5 - im1b4 ) : -999  "
+      expression=" im1b5 > 0 && im1b5 <= 10000 && im1b4 > 0 && im1b4 <= 10000 && im1b6 > 0 && im1b6 && im1b5 - im1b4 != 0 ? 1000*(( im1b6 - im1b5 ) / ( im1b5 - im1b4 )) : -9999 "
       ;; 
    MCARI)
       #MCARI
-      expression=" im1b5 > 0 && im1b5 <= 10000 && im1b4 > 0 && im1b4 <= 10000 && im1b3 > 0 && im1b3 <= 10000 ? (( im1b5 - im1b4 )/10000 - 0.2*( im1b5 - im1b3 )/10000)*( im1b5 - im1b4 ) /10000 : -999 "
+      expression=" im1b5 > 0 && im1b5 <= 10000 && im1b4 > 0 && im1b4 <= 10000 && im1b3 > 0 && im1b3 <= 10000 ? 1000*((( im1b5 - im1b4 )/10000 - 0.2*( im1b5 - im1b3 )/10000)*( im1b5 - im1b4 ) /10000) : -9999 "
       ;;
    GNDVI)
       #GNDVI
-      expression=" im1b7 > 0 && im1b7 <= 10000 && im1b3 > 0 && im1b3 <= 10000 ? ( im1b7 - im1b3 ) / ( im1b7 + im1b3 ) : -999 " 
+      expression=" im1b7 > 0 && im1b7 <= 10000 && im1b3 > 0 && im1b3 <= 10000 ? 1000*(( im1b7 - im1b3 ) / ( im1b7 + im1b3 )) : -9999 " 
       ;;
    PSSRa)
       #PSSRa
-      expression=" im1b7 > 0 && im1b7 <= 10000 && im1b4 > 0 && im1b4 <= 10000 && im1b4 != 0 ? im1b7 / im1b4 : -999 " 
+      expression=" im1b7 > 0 && im1b7 <= 10000 && im1b4 > 0 && im1b4 <= 10000 && im1b4 != 0 ? 1000*(im1b7 / im1b4) : -9999 " 
       ;;
    S2REP)
       #S2REP
-      expression=" im1b7 > 0 && im1b7 <= 10000 && im1b4 >= 0 && im1b4 <= 10000 && im1b5 >= 0 && im1b5 <= 10000 && im1b6 >= 0 && im1b6 <= 10000 ? 705 + 35*(((( im1b7 + im1b4 ) / ( 2*10000 ) - im1b5 / 10000 ) / ( im1b6 - im1b5 ) /10000))  : -999 " 
+      expression=" im1b7 > 0 && im1b7 <= 10000 && im1b4 >= 0 && im1b4 <= 10000 && im1b5 >= 0 && im1b5 <= 10000 && im1b6 >= 0 && im1b6 <= 10000 ? 1000*(705 + 35*(((( im1b7 + im1b4 ) / ( 2*10000 ) - im1b5 / 10000 ) / ( im1b6 - im1b5 ) /10000)))  : -9999 " 
       ;;
    IRECI)
      #IRECI
-     expression=" im1b7 >= 0 && im1b7 <= 10000 && im1b4 >= 0 && im1b4 <= 10000 && im1b6 >= 0 && im1b6 <= 10000 && im1b6 != 0 && im1b5 != 0 ? (( im1b7 - im1b4 )/10000) / ( im1b5 / im1b6 ) : -999 " 
+     expression=" im1b7 >= 0 && im1b7 <= 10000 && im1b4 >= 0 && im1b4 <= 10000 && im1b6 >= 0 && im1b6 <= 10000 && im1b6 != 0 && im1b5 != 0 ? 1000*((( im1b7 - im1b4 )/10000) / ( im1b5 / im1b6 )) : -9999 " 
      ;;   
    CLD)
      # Raster mask values range from 0 for high confidence clear sky to 100 for high confidence cloudy
@@ -145,7 +145,7 @@ function calcVegetation() {
    WVP)
      # Scene-average Water Vapour map
      # this is not a vegetation index
-     expression=" im1b16 / 10000"
+     expression=" im1b16 / 10"
      ;;
   *)
      return ${ERR_UNKNOWN_VI}
@@ -308,8 +308,12 @@ function main() {
       rm -f ${TMPDIR}/sen2vi.vrt
   
       ciop-log "INFO" "Publish Level 2 product ${identifier}_${counter}.TIF"
-      ciop-publish -m ${TMPDIR}/${identifier}_${counter}.TIF || return ${ERR_PUBLISH}
+      l2b_identifier=$( echo ${identifier} | sed 's/MSIL2A/MSIL2B/' )
+      mv ${TMPDIR}/${identifier}_${counter}.TIF ${TMPDIR}/${l2b_identifier}_${counter}.TIF  
+      gzip ${TMPDIR}/${l2b_identifier}_${counter}.TIF
+      ciop-publish -m ${TMPDIR}/${l2b_identifier}_${counter}.TIF.gz || return ${ERR_PUBLISH}
    
+      rm -f ${TMPDIR}/${l2b_identifier}_${counter}.TIF
       rm -fr ${TMPDIR}/${identifier}.SAFE/${identifier}_${counter}* 
 
       counter=$((counter+1))

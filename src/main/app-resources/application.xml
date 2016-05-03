@@ -3,9 +3,9 @@
   <jobTemplates>
     <jobTemplate id="sen2cor" jobType="wps_client">
         <defaultParameters>
-        <parameter id="startdate" title="Time of Interest start date/time" abstract="Time of Interest start date/time in ISO 8601 (e.g. 2016-04-21T06:50:41Z)" scope="runtime" type="opensearch" target="time:start" maxOccurs="1">2016-02-06T10:24:29.000Z</parameter>
-        <parameter id="enddate" title="Time of Interest end date/time" abstract="Time of Interest end date/time in ISO 8601 (e.g. 2016-04-21T06:50:41Z)" scope="runtime" type="opensearch" target="time:end" maxOccurs="1">2016-02-25T23:59:59.000Z</parameter>
-        <parameter id="bbox" title="Area of Interest expressed as a bounding box" abstract="Area of Interest expressed as min longitude,min latitude,max longitude,max latitude (e.g. 14.75,37.41,15.21,37.74)" scope="runtime" type="opensearch" target="geo:box" maxOccurs="1">14.75,37.41,15.21,37.74</parameter>
+        <parameter id="startdate" title="Time of Interest start date/time" abstract="Time of Interest start date/time in ISO 8601 (e.g. 2016-04-21T06:50:41Z)" scope="runtime" type="opensearch" target="time:start" maxOccurs="1">2016-02-01T10:24:29.000Z</parameter>
+        <parameter id="enddate" title="Time of Interest end date/time" abstract="Time of Interest end date/time in ISO 8601 (e.g. 2016-04-21T06:50:41Z)" scope="runtime" type="opensearch" target="time:end" maxOccurs="1">2016-02-28T23:59:59.000Z</parameter>
+        <parameter id="bbox" title="Area of Interest expressed as a bounding box" abstract="Area of Interest expressed as min longitude,min latitude,max longitude,max latitude (e.g. 14.75,37.41,15.21,37.74)" scope="runtime" type="opensearch" target="geo:box" maxOccurs="1">3.7,43.28,5.2,43.93</parameter>
       <parameter id="resolution" title="Resolution for Sentinel-2 Level-2A product in meters (10, 20 or 60)" abstract="Resolution for Sentinel-2 Level-2A product in meters (10, 20 or 60). The bands are resampled to the selected target resolution" scope="runtime" maxOccurs="1"> <options>
         <option>10</option>
         <option>20</option>
@@ -33,9 +33,6 @@
     </jobTemplate> 
    <jobTemplate id="sen2vi">
       <streamingExecutable>/application/sen2vi/run</streamingExecutable>
-      <defaultParameters>
-        <parameter id="vegetation_index" title="List of vegetation indexes to generate" abstract="List of vegetation indexes to generate" scope="runtime">NDVI</parameter>
-      </defaultParameters>
       <defaultJobconf>
         <property id="mapred.task.timeout">9900000000</property>
       </defaultJobconf>
