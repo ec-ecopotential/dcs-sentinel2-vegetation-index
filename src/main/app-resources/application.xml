@@ -38,12 +38,12 @@
       </defaultJobconf>
     </jobTemplate>  
   </jobTemplates>
-    <workflow id="workflow" title="Basic Workflow" abstract="Basic workflow archetype">
+    <workflow id="S2_vegetation_indices" title="Sentinel-2 Vegetation Indices" abstract="Sentinel-2 Vegetation Indices">
     <workflowVersion>1.0</workflowVersion>
     <node id="sen2cor">
       <job id="sen2cor"/>
       <sources>
-        <source id="series" title="a" abstract="b" refid="cas:series">https://data2.terradue.com/eop/eo-samples/series/sentinel-2/description</source>
+        <source maxOccurs="1"  id="series" title="Sentinel-2 catalogue series access point" abstract="Sentinel-2 catalogue series access point" scope="runtime" refid="cas:series">https://data2.terradue.com/eop/eo-samples/series/sentinel-2/description</source>
       </sources>
     </node>
     <node id="split">

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash # # streaming executable of sen2vi job template
 
 # source the ciop functions (e.g. ciop-log, ciop-getparam)
 source ${ciop_job_include}
@@ -43,10 +43,13 @@ function main() {
 
     counter=0
 
-    gdalinfo ${metadata} 2> /dev/null | grep -E  "SUBDATASET_._NAME" | grep -v "PREVIEW" | cut -d "=" -f 2 | while read subset
+    gdalinfo ${metadata} 2> /dev/null | grep -E  "SUBDATASET_._NAME" \
+      | grep -v "PREVIEW" | cut -d "=" -f 2 | while read subset
     do 
       ciop-log "INFO" "Process ${subset}"
-      gdal_translate ${subset} ${identifier}_${counter}.TIF || return ${ERR_GDAL_TRANSLATE}
+      gdal_translate \
+        ${subset} \
+        ${identifier}_${counter}.TIF || return ${ERR_GDAL_TRANSLATE}
 
       for index in NDVI NDI45 MTCI MCARI GNDVI PSSRa S2REP IRECI CLD SCL SNW WVP
       do 
@@ -56,7 +59,8 @@ function main() {
    
       rm -f ${identifier}_${counter}.TIF    
  
-      # build gdal VRT will all vegetation indexes and selected single bands of Level 2A input product
+      # build gdal VRT will all vegetation indexes and selected single bands 
+      # of Level 2A input product
       gdalbuildvrt \
         -separate \
         -q \
@@ -74,11 +78,14 @@ function main() {
         ${TMPDIR}/${identifier}.SAFE/${identifier}_${counter}_CLD.TIF \
         ${TMPDIR}/${identifier}.SAFE/${identifier}_${counter}_SCL.TIF \
         ${TMPDIR}/${identifier}.SAFE/${identifier}_${counter}_SNW.TIF \
-        ${TMPDIR}/${identifier}.SAFE/${identifier}_${counter}_WVP.TIF || return ${ERR_GDAL_VRT}
+        ${TMPDIR}/${identifier}.SAFE/${identifier}_${counter}_WVP.TIF \
+        || return ${ERR_GDAL_VRT}
 
       updateVRTMetadata ${TMPDIR}/sen2vi.vrt 
 
-      gdal_translate ${TMPDIR}/sen2vi.vrt ${TMPDIR}/${identifier}_${counter}.TIF || return ${ERR_GDAL_WARP}
+      gdal_translate \
+        ${TMPDIR}/sen2vi.vrt \
+        ${TMPDIR}/${identifier}_${counter}.TIF || return ${ERR_GDAL_WARP}
     
       rm -f ${TMPDIR}/sen2vi.vrt
   
@@ -87,11 +94,16 @@ function main() {
       gzip ${TMPDIR}/${l2b_identifier}_${counter}.TIF
       
       ciop-log "INFO" "Publish Level 2 product ${l2b_identifier}_${counter}.TIF.gz"
-      ciop-publish -m ${TMPDIR}/${l2b_identifier}_${counter}.TIF.gz || return ${ERR_PUBLISH}
+      
+      ciop-publish -m ${TMPDIR}/${l2b_identifier}_${counter}.TIF.gz \
+        || return ${ERR_PUBLISH}
   
       # enrich metadata
       updateMetadata ${metadata} ${TMPDIR}/${l2b_identifier}_${counter}.TIF.gz.xml
  
+      ciop-publish -m ${TMPDIR}/${l2b_identifier}_${counter}.TIF.gz.xml \
+        || return ${ERR_PUBLISH}
+
       rm -f ${TMPDIR}/${l2b_identifier}_${counter}.TIF*
       rm -fr ${TMPDIR}/${identifier}.SAFE/${identifier}_${counter}* 
 
