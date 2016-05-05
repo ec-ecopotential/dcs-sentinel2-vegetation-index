@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<!--<entry>
+<box xmlns="http://www.georss.org/georss">43.2012113554038 2.99974947412094 46.0535047357316 9.12616723722405</box>
+    <where xmlns="http://www.georss.org/georss">
+      <MultiSurface xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.opengis.net/gml/3.2">
+        <surfaceMembers>
+          <Polygon>
+            <exterior>
+              <LinearRing>
+                <posList srsDimension="2" count="33">44.2534175810776 2.99974947412094 43.2647903773733 2.99975356551187 43.2571502906835 4.29226818980717 43.2366108502828 5.52328140680105 43.2012113554038 6.8126316594684 43.2426154295786 6.815280556152 43.2584446430629 7.82807440158667 43.2647271638988 9.12025990026384 44.2084611517319 9.12216583063778 45.1085899011545 9.12407078258541 46.0535047357316 9.12616723722405 46.0469088232567 7.8341228258708 46.0476276229589 7.83410808972231 46.0465841643408 7.77052681249293 46.0462596089832 7.70695108472353 46.0455410649148 7.70696742199649 46.0243533962901 6.41593487960282 46.0003340631192 6.41702599273316 46.0207045019544 5.71050997228113 46.0214217425096 5.71054414759772 46.0225341218142 5.64705254003123 46.0243650756893 5.58354883959714 46.0236472841459 5.5835162393831 46.0462654563034 4.2925320358333 45.1467520387766 4.27208830321324 45.1467528555578 4.27204096776844 45.1015842924225 4.27106175117797 45.0581973205829 4.27007567177748 45.0581965372 4.27012114101045 44.2465501798304 4.25252532826889 44.2465509349487 4.25248087222319 44.2458793900104 4.25246697913594 44.2534175810776 2.99974947412094</posList>
+              </LinearRing>
+            </exterior>
+          </Polygon>
+        </surfaceMembers>
+      </MultiSurface>
+    </where>
+    <spatial xmlns="http://purl.org/dc/terms/">MULTIPOLYGON(((2.99974947412094 44.2534175810776,2.99975356551187 43.2647903773733,4.29226818980717 43.25715
+-->
+<EarthObservation>
+  <!-- <boundedBy xmlns="http://www.opengis.net/gml/3.2" xsi:nil="true"/>-->
+  <phenomenonTime>
+    <TimePeriod>
+      <beginPosition/>
+      <endPosition/>
+    </TimePeriod>
+  </phenomenonTime>
+  <metaDataProperty>
+    <EarthObservationMetaData>
+      <identifier/>
+      <parentIdentifier/>
+      <productType/>
+      <processing>
+        <ProcessingInformation>
+          <processingCenter/>
+          <method/>
+          <processorName/>
+          <processorVersion/>
+          <processingLevel/>
+          <nativeProductFormat/>
+        </ProcessingInformation>
+      </processing>
+      <vendorSpecific>
+        <SpecificInformation>
+          <localAttribute>UTM_ZONE_COVERAGE</localAttribute>
+          <localValue/>
+        </SpecificInformation>
+      </vendorSpecific>
+    </EarthObservationMetaData>
+  </metaDataProperty>
+  <featureOfInterest>
+    <Footprint>
+      <!--          <boundedBy xmlns="http://www.opengis.net/gml/3.2" xsi:nil="true"/>-->
+      <multiExtentOf>
+        <MultiSurface>
+          <surfaceMembers>
+            <Polygon>
+              <exterior>
+                <LinearRing>
+                  <posList srsDimension="2" count="33">44.2534175810776 2.99974947412094 43.2647903773733 2.99975356551187 43.2571502906835 4.29226818980717 43.2366108502828 5.52328140680105 43.2012113554038 6.8126316594684 43.2426154295786 6.815280556152 43.2584446430629 7.82807440158667 43.2647271638988 9.12025990026384 44.2084611517319 9.12216583063778 45.1085899011545 9.12407078258541 46.0535047357316 9.12616723722405 46.0469088232567 7.8341228258708 46.0476276229589 7.83410808972231 46.0465841643408 7.77052681249293 46.0462596089832 7.70695108472353 46.0455410649148 7.70696742199649 46.0243533962901 6.41593487960282 46.0003340631192 6.41702599273316 46.0207045019544 5.71050997228113 46.0214217425096 5.71054414759772 46.0225341218142 5.64705254003123 46.0243650756893 5.58354883959714 46.0236472841459 5.5835162393831 46.0462654563034 4.2925320358333 45.1467520387766 4.27208830321324 45.1467528555578 4.27204096776844 45.1015842924225 4.27106175117797 45.0581973205829 4.27007567177748 45.0581965372 4.27012114101045 44.2465501798304 4.25252532826889 44.2465509349487 4.25248087222319 44.2458793900104 4.25246697913594 44.2534175810776 2.99974947412094</posList>
+                </LinearRing>
+              </exterior>
+            </Polygon>
+          </surfaceMembers>
+        </MultiSurface>
+      </multiExtentOf>
+    </Footprint>
+  </featureOfInterest>
+  <procedure>
+    <EarthObservationEquipment>
+      <!--   <boundedBy xmlns="http://www.opengis.net/gml/3.2" xsi:nil="true"/>-->
+      <platform>
+        <Platform>
+          <shortName>S2A</shortName>
+          <serialIdentifier>2015-000A</serialIdentifier>
+        </Platform>
+      </platform>
+      <instrument>
+        <Instrument>
+          <shortName>MSI</shortName>
+          <description>Multi-Spectral Instrument</description>
+        </Instrument>
+      </instrument>
+      <sensor>
+        <Sensor>
+          <sensorType>OPTICAL</sensorType>
+          <operationalMode codeSpace="urn:eop:SEN2:sensorMode">INSNOBS</operationalMode>
+          <swathIdentifier codeSpace="urn:eop:SEN2:swathIdentifier"/>
+        </Sensor>
+      </sensor>
+      <acquisitionParameters>
+        <Acquisition>
+          <orbitNumber>3394</orbitNumber>
+          <orbitDirection>DESCENDING</orbitDirection>
+        </Acquisition>
+      </acquisitionParameters>
+    </EarthObservationEquipment>
+  </procedure>
+</EarthObservation>
