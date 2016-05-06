@@ -215,21 +215,83 @@ function updateVRTMetadata() {
 
 }
 
+function updateMetadataField() {
+
+  local target_xml="$1"
+  local target_xpath="$2"
+  local value="$3"
+ 
+  [ ! -z "$4" ] && { 
+    # the value comes from the Sentinel-2 Level 2A XML file
+    local source_xpath="$3"
+    local source_xml="$4" 
+
+    local namespace="https://psd-13.sentinel2.eo.esa.int/PSD/User_Product_Level-2A.xsd"
+    xmlstarlet ed -L \
+     -u "${target_xpath}" \
+     -v "$( xmlstarlet sel -N x="${namespace}" -t -v "${source_xpath}" ${source_xml} )" \
+     ${target_xml} 
+  } || {
+    # a simple value is used
+    xmlstarlet ed -L \
+     -u "${target_xpath}" \
+     -v"${value}" \
+     ${target_xml} 
+
+  }
+   
+}
+
+
+
 function updateMetadata() {
 
-  local metadata=$1
-  local target_xml=$2
+  local source_xml="$1"
+  local target_xml="$2"
 
   # copy the template locally
   cp /application/sen2vi/etc/eop_template.xml ${target_xml}
 
   # update time coverage
-  local starttime="$( xmlstarlet sel -N x="https://psd-13.sentinel2.eo.esa.int/PSD/User_Product_Level-2A.xsd" -t -v "//x:Level-2A_User_Product/x:General_Info/L2A_Product_Info/PRODUCT_START_TIME" ${metadata} )"
-  xmlstarlet ed -L -u '//EarthObservation/phenomenonTime/TimePeriod/beginPosition' -v ${starttime}
+  updateMetadataField \
+   ${target_xml} \
+   "//EarthObservation/phenomenonTime/TimePeriod/beginPosition" \
+   "//x:Level-2A_User_Product/x:General_Info/L2A_Product_Info/PRODUCT_START_TIME" \
+   ${source_xml}
+ 
+  updateMetadataField \
+   ${target_xml} \
+   "//EarthObservation/phenomenonTime/TimePeriod/endPosition"
+   "//x:Level-2A_User_Product/x:General_Info/L2A_Product_Info/PRODUCT_STOP_TIME" \
+   ${source_xml}
 
-  local stoptime="$( xmlstarlet sel -N x="https://psd-13.sentinel2.eo.esa.int/PSD/User_Product_Level-2A.xsd" -t -v "//x:Level-2A_User_Product/x:General_Info/L2A_Product_Info/PRODUCT_STOP_TIME" ${metadata} )"
-  xmlstarlet ed -L -u '//EarthObservation/phenomenonTime/TimePeriod/endPosition' -v ${stoptime}
+  # TODO add cloud coverage target
+  #updateMetadataField \
+  # ${source_xml} \
+  # ${target_xml} \
+  # "//x:Level-2A_User_Product/x:Quality_Indicators_Info/Cloud_Coverage_Assessment" \
+  # "/"
 
+  updateMetadataField \
+   ${target_xml} \
+   "//EarthObservation/metaDataProperty/EarthObservationMetaData/identifier" \
+   "${l2b_identifier}_${counter}" 
+
+  #updateMetadataField \
+  # ${target_xml} \
+  # "${l2b_identifier}_${counter}" \
+  # "//EarthObservation/metaDataProperty/EarthObservationMetaData/parentIdentifier" 
+  
+  updateMetadataField \
+    ${target_xml} \
+    "//EarthObservation/metaDataProperty/EarthObservationMetaData/productType/" \
+    "S2MSI2Bp" 
+
+   updateMetadataField \
+    ${target_xml} \
+    "//EarthObservation/metaDataProperty/EarthObservationMetaData/productType/" \
+    "S2MSI2Bp"
 }
+
 
 
