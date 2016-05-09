@@ -1,10 +1,12 @@
-#!/bin/bash # # streaming executable of sen2vi job template
+#!/bin/bash 
+
+# streaming executable of sen2vi job template
 
 # source the ciop functions (e.g. ciop-log, ciop-getparam)
 source ${ciop_job_include}
 
 # load the functions
-source /application/sen2vi/lib/function.sh
+source /application/sen2vi/lib/functions.sh
 
 trap cleanExit EXIT
 
@@ -53,12 +55,13 @@ function main() {
 
       for index in NDVI NDI45 MTCI MCARI GNDVI PSSRa S2REP IRECI CLD SCL SNW WVP
       do 
-   
+  	ciop-log "INFO" "Generating indice ${index}" 
         calcVegetation ${index} ${identifier}_${counter} || return $?
       done
    
       rm -f ${identifier}_${counter}.TIF    
  
+      ciop-log "INFO" "Aggregating Level 2B components"
       # build gdal VRT will all vegetation indexes and selected single bands 
       # of Level 2A input product
       gdalbuildvrt \
@@ -98,6 +101,7 @@ function main() {
       ciop-publish -m ${TMPDIR}/${l2b_identifier}_${counter}.TIF.gz \
         || return ${ERR_PUBLISH}
   
+      ciop-log "INFO" "Generating metadata"
       # enrich metadata
       updateMetadata ${metadata} ${TMPDIR}/${l2b_identifier}_${counter}.TIF.gz.xml
  

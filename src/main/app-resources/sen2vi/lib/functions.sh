@@ -149,7 +149,7 @@ function calcVegetation() {
   otbcli_BandMath \
     -il ${s2l2a}.TIF \
     -exp ${expression} \
-    -out ${s2l2a}_${index}.TIF || return ${ERR_OTB_BANDMATH}
+    -out ${s2l2a}_${index}.TIF 1> /dev/null || return ${ERR_OTB_BANDMATH}
 
 }
 
@@ -216,7 +216,7 @@ function updateVRTMetadata() {
 }
 
 function updateMetadataField() {
-
+set -x
   local target_xml="$1"
   local target_xpath="$2"
   local value="$3"
@@ -235,11 +235,11 @@ function updateMetadataField() {
     # a simple value is used
     xmlstarlet ed -L \
      -u "${target_xpath}" \
-     -v"${value}" \
+     -v "${value}" \
      ${target_xml} 
 
   }
-   
+ set +x  
 }
 
 
@@ -261,7 +261,7 @@ function updateMetadata() {
  
   updateMetadataField \
    ${target_xml} \
-   "//EarthObservation/phenomenonTime/TimePeriod/endPosition"
+   "//EarthObservation/phenomenonTime/TimePeriod/endPosition" \
    "//x:Level-2A_User_Product/x:General_Info/L2A_Product_Info/PRODUCT_STOP_TIME" \
    ${source_xml}
 
@@ -289,8 +289,8 @@ function updateMetadata() {
 
    updateMetadataField \
     ${target_xml} \
-    "//EarthObservation/metaDataProperty/EarthObservationMetaData/productType/" \
-    "S2MSI2Bp"
+    "//EarthObservation/metaDataProperty/EarthObservationMetaData/processing/ProcessingInformation/processingCenter" \
+    "Terradue Cloud Platform"
 }
 
 
