@@ -84,35 +84,34 @@ new File('.').eachFileRecurse(FILES) {
           </dependency>
         </dependencies>
       </plugin>
-<plugin>
-    <groupId>org.codehaus.gmavenplus</groupId>
-    <artifactId>gmavenplus-plugin</artifactId>
-    <version>1.5</version>
-    <dependencies>
-      <dependency>
-        <groupId>org.codehaus.groovy</groupId>
-        <artifactId>groovy-all</artifactId>
-        <version>2.4.4</version>
-        <scope>runtime</scope>
-      </dependency>
-      <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>1.0.13</version>
-        <scope>runtime</scope>
-      </dependency>
-    </dependencies>
-    <executions>
-      <execution>
-        <id>add-dynamic-properties</id>
-        <phase>initialize</phase>
-        <goals>
-          <goal>execute</goal>
-        </goals>
-        <configuration>
-          <scripts>
-            <script>
-<![CDATA[
+      <plugin>
+        <groupId>org.codehaus.gmavenplus</groupId>
+        <artifactId>gmavenplus-plugin</artifactId>
+        <version>1.5</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>2.4.4</version>
+            <scope>runtime</scope>
+          </dependency>
+          <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.0.13</version>
+            <scope>runtime</scope>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <id>add-dynamic-properties</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <scripts>
+                <script><![CDATA[
 def application = new XmlParser().parse("${basedir}/src/main/app-resources/application.xml")
 def description = "${application.workflow.@abstract.value[0]}"
 def summary = "${application.workflow.@title.value[0]}"
@@ -120,13 +119,12 @@ if (!description) { description = "Fill workflow abstract in the application des
 if (!summary) { summary = "Fill workflow title in the application descriptor" }
 project.properties.setProperty("artifact.description", description)
 project.properties.setProperty("artifact.summary", summary) 
-]]>
-            </script>
-          </scripts>
-        </configuration>
-      </execution>
-    </executions>
-  </plugin>
+]]></script>
+              </scripts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <artifactId>maven-clean-plugin</artifactId>
         <version>2.5</version>
