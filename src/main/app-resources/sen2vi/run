@@ -94,16 +94,20 @@ function main() {
   
       l2b_identifier=$( echo ${identifier} | sed 's/MSIL2A/MSIL2B/' )
       mv ${TMPDIR}/${identifier}_${counter}.TIF ${TMPDIR}/${l2b_identifier}_${counter}.TIF  
+
+      ciop-log "INFO" "Generating metadata"
+      # enrich metadata
+      updateMetadata \
+        ${metadata} \
+        ${TMPDIR}/${l2b_identifier}_${counter}.TIF \
+        ${TMPDIR}/${l2b_identifier}_${counter}.TIF.gz.xml
+
       gzip ${TMPDIR}/${l2b_identifier}_${counter}.TIF
       
       ciop-log "INFO" "Publish Level 2 product ${l2b_identifier}_${counter}.TIF.gz"
       
       ciop-publish -m ${TMPDIR}/${l2b_identifier}_${counter}.TIF.gz \
         || return ${ERR_PUBLISH}
-  
-      ciop-log "INFO" "Generating metadata"
-      # enrich metadata
-      updateMetadata ${metadata} ${TMPDIR}/${l2b_identifier}_${counter}.TIF.gz.xml
  
       ciop-publish -m ${TMPDIR}/${l2b_identifier}_${counter}.TIF.gz.xml \
         || return ${ERR_PUBLISH}

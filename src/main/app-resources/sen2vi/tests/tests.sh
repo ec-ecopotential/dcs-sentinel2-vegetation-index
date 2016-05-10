@@ -48,6 +48,7 @@ test_updateMetadataField_xpath() {
 
   # test second function signature
   local target_xml=${_TEST}/eop_instance.xml
+  local product=empty
   local source_xml=${_ROOT}/artifacts/S2A_USER_PRD_MSIL2A_PDMC_20160209T011325_R008_V20160208T104841_20160208T104841.SAFE/S2A_USER_MTD_SAFL2A_PDMC_20160209T011325_R008_V20160208T104841_20160208T104841.xml
 
   cp ${_ROOT}/../etc/eop_template.xml ${target_xml}
@@ -77,6 +78,7 @@ test_updateMetadata() {
 
   updateMetadata \
     ${source_xml} \
+    product \
     ${target_xml}
 
   assertEquals "" "$(diff ${_TEST}/eop_instance.xml ${_ARTIFACT}/eop_target.xml)"

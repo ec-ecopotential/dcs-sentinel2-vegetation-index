@@ -247,7 +247,8 @@ set -x
 function updateMetadata() {
 
   local source_xml="$1"
-  local target_xml="$2"
+  local product="$2"
+  local target_xml="$3"
 
   # copy the template locally
   cp /application/sen2vi/etc/eop_template.xml ${target_xml}
@@ -284,13 +285,46 @@ function updateMetadata() {
   
   updateMetadataField \
     ${target_xml} \
-    "//EarthObservation/metaDataProperty/EarthObservationMetaData/productType/" \
+    "//EarthObservation/metaDataProperty/EarthObservationMetaData/productType" \
     "S2MSI2Bp" 
+  
+  updateMetadataField \
+    ${target_xml} \
+    "//EarthObservation/metaDataProperty/EarthObservationMetaData/processing/ProcessingInformation/processorName" \
+    "dcs-sentinel2-vegetation-index"
 
-   updateMetadataField \
+  updateMetadataField \
+    ${target_xml} \
+    "//EarthObservation/metaDataProperty/EarthObservationMetaData/processing/ProcessingInformation/processingLevel" \
+    "2B" 
+
+  updateMetadataField \
+    ${target_xml} \
+    "//EarthObservation/metaDataProperty/EarthObservationMetaData/processing/ProcessingInformation/nativeProductFormat" \
+    "GEOTIFF"
+
+  updateMetadataField \
     ${target_xml} \
     "//EarthObservation/metaDataProperty/EarthObservationMetaData/processing/ProcessingInformation/processingCenter" \
     "Terradue Cloud Platform"
+
+  updateMetadataField \
+    ${target_xml} \
+    "//EarthObservation/procedure/EarthObservationEquipment/acquisitionParameters/Acquisition/orbitNumber" \
+    "//x:Level-2A_User_Product/x:General_Info/L2A_Product_Info/Datatake/SENSING_ORBIT_NUMBER" \
+    ${source_xml} 
+
+  updateMetadataField \
+    ${target_xml} \
+    "//EarthObservation/procedure/EarthObservationEquipment/acquisitionParameters/Acquisition/orbitDirection" \
+    "//x:Level-2A_User_Product/x:General_Info/L2A_Product_Info/Datatake/SENSING_ORBIT_DIRECTION" \
+    ${source_xml}
+
+  # UTM zone
+  updateMetadataField \
+    ${target_xml} \
+    "//EarthObservation/metaDataProperty/EarthObservationMetaData/vendorSpecific/SpecificInformation/localValue" \
+    "$( listgeo ${product} 2> /dev/null | grep "^Projection =" | sed 's#.*(\(.*\)).*#\1#g' )"
 }
 
 

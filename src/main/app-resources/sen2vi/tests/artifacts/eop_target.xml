@@ -28,15 +28,15 @@
     <EarthObservationMetaData>
       <identifier>S2A_USER_PRD_MSIL2B_PDMC_20160209T011325_R008_V20160208T104841_20160208T104841_0</identifier>
       <parentIdentifier/>
-      <productType/>
+      <productType>S2MSI2Bp</productType>
       <processing>
         <ProcessingInformation>
           <processingCenter>Terradue Cloud Platform</processingCenter>
           <method/>
-          <processorName/>
+          <processorName>dcs-sentinel2-vegetation-index</processorName>
           <processorVersion/>
-          <processingLevel/>
-          <nativeProductFormat/>
+          <processingLevel>2B</processingLevel>
+          <nativeProductFormat>GEOTIFF</nativeProductFormat>
         </ProcessingInformation>
       </processing>
       <vendorSpecific>
@@ -89,7 +89,7 @@
       </sensor>
       <acquisitionParameters>
         <Acquisition>
-          <orbitNumber>3394</orbitNumber>
+          <orbitNumber>8</orbitNumber>
           <orbitDirection>DESCENDING</orbitDirection>
         </Acquisition>
       </acquisitionParameters>
