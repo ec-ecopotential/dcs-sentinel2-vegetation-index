@@ -4,6 +4,7 @@ setUp() {
 
   echo "setup test environment"
 
+  export SHUNIT2_HOME=/usr/share/shunit2/
   # make sure set -x is not on
   set +x 
 
@@ -82,5 +83,11 @@ test_updateMetadata() {
 
 } 
 
+test_fail() {
+ assertEquals 1 1
+
+}
+
 # load shunit2
+  export SHUNIT2_HOME=/usr/share/shunit2/
 . $SHUNIT2_HOME/shunit2

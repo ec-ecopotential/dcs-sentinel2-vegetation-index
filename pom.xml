@@ -34,6 +34,100 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>org.codehaus.gmavenplus</groupId>
+        <artifactId>gmavenplus-plugin</artifactId>
+        <version>1.5</version>
+        <executions>
+          <execution>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <scripts>
+            <script><![CDATA[
+import static groovy.io.FileType.FILES
+def runCommand = { strList ->
+  assert ( strList instanceof String ||
+           ( strList instanceof List && strList.each{ it instanceof String } ))
+  def proc = strList.execute()
+  proc.in.eachLine { line -> println line }
+  proc.out.close()
+  proc.waitFor()
+  print "[INFO] ( "
+  if(strList instanceof List) {
+    strList.each { print "${it} " }
+  } else {
+    print strList
+  }
+  println " )"
+  println "exit code: ${proc.exitValue()}"
+  return proc.exitValue()
+}
+new File('.').eachFileRecurse(FILES) {
+    if(it.name.endsWith('tests.sh')) {
+        println it.toString()
+        if(runCommand("sh " + it) == 1) System.exit(1)
+    }
+}]]></script>
+          </scripts>
+          <allowSystemExits>true</allowSystemExits>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>2.4.4</version>
+            <scope>runtime</scope>
+          </dependency>
+        </dependencies>
+      </plugin>
+<plugin>
+    <groupId>org.codehaus.gmavenplus</groupId>
+    <artifactId>gmavenplus-plugin</artifactId>
+    <version>1.5</version>
+    <dependencies>
+      <dependency>
+        <groupId>org.codehaus.groovy</groupId>
+        <artifactId>groovy-all</artifactId>
+        <version>2.4.4</version>
+        <scope>runtime</scope>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.0.13</version>
+        <scope>runtime</scope>
+      </dependency>
+    </dependencies>
+    <executions>
+      <execution>
+        <id>add-dynamic-properties</id>
+        <phase>initialize</phase>
+        <goals>
+          <goal>execute</goal>
+        </goals>
+        <configuration>
+          <scripts>
+            <script>
+<![CDATA[
+def application = new XmlParser().parse("${basedir}/src/main/app-resources/application.xml")
+def description = "${application.workflow.@abstract.value[0]}"
+def summary = "${application.workflow.@title.value[0]}"
+if (!description) { description = "Fill workflow abstract in the application descriptor" }
+if (!summary) { summary = "Fill workflow title in the application descriptor" }
+project.properties.setProperty("artifact.description", description)
+project.properties.setProperty("artifact.summary", summary) 
+]]>
+            </script>
+          </scripts>
+        </configuration>
+      </execution>
+    </executions>
+  </plugin>
+      <plugin>
         <artifactId>maven-clean-plugin</artifactId>
         <version>2.5</version>
         <configuration>
@@ -50,30 +144,6 @@
             </fileset>
           </filesets>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>1.3.1</version>
-        <executions>
-          <execution>
-            <id>Unit tests</id>
-            <phase>test</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>/bin/bash</executable>
-              <workingDirectory>${basedir}/src/main/app-resources/sen2vi/tests</workingDirectory>
-              <environmentVariables>
-                <SHUNIT2_HOME>/usr/share/shunit2</SHUNIT2_HOME>
-              </environmentVariables>
-              <arguments>
-		<argument>tests.sh</argument>
-              </arguments>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <artifactId>maven-resources-plugin</artifactId>
@@ -132,7 +202,7 @@
         <configuration>
           <copyright>${project.inceptionYear}, Terradue, GPL</copyright>
           <distribution>Terradue ${project.inceptionYear}</distribution>
-          <group>scoop</group>
+          <group>${project.groupId}</group>
           <packager>Terradue</packager>
           <name>${project.artifactId}</name>
           <defaultDirmode>775</defaultDirmode>
@@ -141,8 +211,8 @@
           <defaultGroupname>root</defaultGroupname>
           <autoRequires>false</autoRequires>
           <autoProvides>false</autoProvides>
-          <description>DCS Bash base application</description>
-          <summary>DCS Bash base application</summary>
+          <description>${artifact.description}</description>
+          <summary>${artifact.summary}</summary>
           <executions>
             <execution>
               <id>generate-rpm</id>
