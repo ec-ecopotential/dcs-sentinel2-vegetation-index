@@ -43,7 +43,7 @@
     <node id="sen2cor">
       <job id="sen2cor"/>
       <sources>
-        <source maxOccurs="1"  id="series" title="Sentinel-2 catalogue series access point" abstract="Sentinel-2 catalogue series access point" scope="runtime" refid="cas:series">https://data2.terradue.com/eop/eo-samples/series/sentinel-2/description</source>
+        <source maxOccurs="1"  id="series" title="Sentinel-2 catalogue series access point" abstract="Sentinel-2 catalogue series access point" scope="runtime" refid="cas:series">https://catalog.terradue.com/sentinel2/description</source>
       </sources>
     </node>
     <node id="split">

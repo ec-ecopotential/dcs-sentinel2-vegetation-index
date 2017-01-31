@@ -4,265 +4,59 @@
   <groupId>com.terradue</groupId>
   <artifactId>dcs-sentinel2-vegetation-index</artifactId>
   <packaging>pom</packaging>
-  <name>dcs-bash</name>
-  <description>dcs-bash</description>
-  <version>0.1-SNAPSHOT</version>
+  <name>dcs-sentinel2-vegetation-index</name>
+  <parent>
+    <groupId>com.terradue</groupId>
+    <artifactId>dcs-bash-parent</artifactId>
+    <version>2.0.0</version>
+  </parent>
+  <description>dcs-sentinel2-vegetation-index</description>
+  <version>1.0-SNAPSHOT</version>
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven.deploy.skip>true</maven.deploy.skip>
+    <summary>dcs-sentinel2-vegetation-index</summary>
+    <description>dcs-sentinel2-vegetation-index</description>
+    <community>ec-ecopotential</community>
+    <yumRepo>ec-ecopotential</yumRepo>
   </properties>
-  <repositories>
-    <repository>
-      <id>repository.terradue.com</id>
-      <name>repository.terradue.com-releases</name>
-      <url>http://repository.terradue.com/artifactory/libs-release-public</url>
-      <releases>
-        <checksumPolicy>warn</checksumPolicy>
-      </releases>
-    </repository>
-  </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <snapshots/>
-      <id>repository.terradue.com</id>
-      <name>repository.terradue.com-releases</name>
-      <url>http://repository.terradue.com/artifactory/libs-release-public</url>
-    </pluginRepository>
-  </pluginRepositories>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.gmavenplus</groupId>
-        <artifactId>gmavenplus-plugin</artifactId>
-        <version>1.5</version>
-        <executions>
-          <execution>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <scripts>
-            <script><![CDATA[
-import static groovy.io.FileType.FILES
-def runCommand = { strList ->
-  assert ( strList instanceof String ||
-           ( strList instanceof List && strList.each{ it instanceof String } ))
-  def proc = strList.execute()
-  proc.in.eachLine { line -> println line }
-  proc.out.close()
-  proc.waitFor()
-  print "[INFO] ( "
-  if(strList instanceof List) {
-    strList.each { print "${it} " }
-  } else {
-    print strList
-  }
-  println " )"
-  println "exit code: ${proc.exitValue()}"
-  return proc.exitValue()
-}
-new File('.').eachFileRecurse(FILES) {
-    if(it.name.endsWith('tests.sh')) {
-        println it.toString()
-        if(runCommand("sh " + it) == 1) System.exit(1)
-    }
-}]]></script>
-          </scripts>
-          <allowSystemExits>true</allowSystemExits>
-        </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <version>2.4.4</version>
-            <scope>runtime</scope>
-          </dependency>
-        </dependencies>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.gmavenplus</groupId>
-        <artifactId>gmavenplus-plugin</artifactId>
-        <version>1.5</version>
-        <dependencies>
-          <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <version>2.4.4</version>
-            <scope>runtime</scope>
-          </dependency>
-          <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.0.13</version>
-            <scope>runtime</scope>
-          </dependency>
-        </dependencies>
-        <executions>
-          <execution>
-            <id>add-dynamic-properties</id>
-            <phase>initialize</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-            <configuration>
-              <scripts>
-                <script><![CDATA[
-def application = new XmlParser().parse("${basedir}/src/main/app-resources/application.xml")
-def description = "${application.workflow.@abstract.value[0]}"
-def summary = "${application.workflow.@title.value[0]}"
-if (!description) { description = "Fill workflow abstract in the application descriptor" }
-if (!summary) { summary = "Fill workflow title in the application descriptor" }
-project.properties.setProperty("artifact.description", description)
-project.properties.setProperty("artifact.summary", summary) 
-]]></script>
-              </scripts>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-clean-plugin</artifactId>
-        <version>2.5</version>
-        <configuration>
-          <filesets>
-            <fileset>
-              <directory>/application</directory>
-              <includes>
-                <include>**/*</include>
-              </includes>
-              <excludes>
-                <exclude>**/share/**</exclude>
-              </excludes>
-              <followSymlinks>false</followSymlinks>
-            </fileset>
-          </filesets>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>2.6</version>
-        <executions>
-          <execution>
-            <id>copy-app-resources</id>
-            <phase>install</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>/application</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>${basedir}/src/main/app-resources/</directory>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.6</version>
-        <executions>
-          <execution>
-            <id>change perm</id>
-            <phase>install</phase>
-            <configuration>
-              <target>
-                <chmod dir="/application" includes="**/run" perm="755"/>
-                <chmod file="/application/application.xml" perm="664"/>
-              </target>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>rpm-maven-plugin</artifactId>
-        <version>2.1.2</version>
-        <extensions>true</extensions>
-        <executions>
-          <execution>
-            <id>generate-rpm</id>
-            <goals>
-              <goal>rpm</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <copyright>${project.inceptionYear}, Terradue, GPL</copyright>
-          <distribution>Terradue ${project.inceptionYear}</distribution>
-          <group>${project.groupId}</group>
-          <packager>Terradue</packager>
-          <name>${project.artifactId}</name>
-          <defaultDirmode>775</defaultDirmode>
-          <defaultFilemode>644</defaultFilemode>
-          <defaultUsername>root</defaultUsername>
-          <defaultGroupname>root</defaultGroupname>
-          <autoRequires>false</autoRequires>
-          <autoProvides>false</autoProvides>
-          <description>${artifact.description}</description>
-          <summary>${artifact.summary}</summary>
-          <executions>
-            <execution>
-              <id>generate-rpm</id>
-              <goals>
-                <goal>rpm</goal>
-              </goals>
-            </execution>
-          </executions>
-          <mappings>
-            <mapping>
-              <directory>/application</directory>
-              <sources>
-                <source>
-                  <location>${basedir}/src/main/app-resources/</location>
-                </source>
-              </sources>
-            </mapping>
-            <mapping>
-              <directory>/application</directory>
-              <sources>
-                <source>
-                  <location>${basedir}/src/main/app-resources</location>
-                  <includes>
-                    <include>application.xml</include>
-                  </includes>
-                </source>
-              </sources>
-              <filemode>664</filemode>
-            </mapping>
-            <mapping>
-              <directory>/application</directory>
-              <sources>
-                <source>
-                  <location>${basedir}/src/main/app-resources</location>
-                  <includes>
-                    <include>**/run</include>
-                  </includes>
-                </source>
-              </sources>
-              <filemode>755</filemode>
-            </mapping>
-          </mappings>
-          <provides>
-            <provide>${project.artifactId}</provide>
-          </provides>
-          <!--
-					<requires>
-						<require></require>
-					</requires>
-				-->
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+  <scm>
+    <connection>scm:git:ssh://git@github.com/ec-ecopotential/dcs-sentinel2-vegetation-index</connection>
+    <developerConnection>scm:git:ssh://git@github.com/ec-ecopotential/dcs-sentinel2-vegetation-index</developerConnection>
+    <url>https://github.com/ec-ecopotential/dcs-sentinel2-vegetation-index</url>
+    <tag>HEAD</tag>
+  </scm>
+  <profiles>
+    <profile>
+      <id>package-app</id>
+      <activation>
+         <property>
+           <name>env</name>
+           <value>ci</value>
+         </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>rpm-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>generate-rpm</id>
+                <goals>
+                  <goal>rpm</goal>
+                </goals>
+                <configuration>
+                  <!-- Set here the dependencies installed with 'sudo yum install'-->
+                  <requires>
+                    <require>gdal-t2</require>
+                    <require>OTB</require>
+                    <require>xmlstarlet</require>
+                  </requires>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
